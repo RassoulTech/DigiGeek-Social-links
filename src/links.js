@@ -6,8 +6,8 @@ export const profile = {
 };
 
 export const links = [
-  {
-    id: 'github',
+//   {
+//     id: 'github',
 //     label: 'GitHub',
 //     url: 'https://github.com/RassoulTech',
 //     accent: 'var(--c-github)',
