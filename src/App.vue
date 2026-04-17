@@ -9,7 +9,7 @@
       <!-- Profile header -->
       <header class="profile">
         <div class="avatar">
-          <img v-if="profile.avatar" :src="profile.avatar" :alt="profile.name" />
+          <img v-if="profile.avatar" :src="resolvedAvatar" :alt="profile.name" @error="onAvatarError" />
           <span v-else class="initials">{{ initials }}</span>
           <div class="avatar-ring"></div>
         </div>
@@ -91,6 +91,18 @@ import { profile, links } from './links.js'
 
 const query      = ref('')
 const activeLink = ref(null)
+const avatarError = ref(false)
+
+// Résout le chemin de l'avatar en tenant compte de BASE_URL (GitHub Pages)
+const resolvedAvatar = computed(() => {
+  if (!profile.avatar || avatarError.value) return null
+  if (profile.avatar.startsWith('http') || profile.avatar.startsWith('data:')) return profile.avatar
+  // Extrait juste le nom du fichier et le place dans /public/images/
+  const filename = profile.avatar.split(/[\/]/).pop()
+  return `${import.meta.env.BASE_URL}images/${filename}`
+})
+
+function onAvatarError() { avatarError.value = true }
 
 const initials = computed(() =>
   profile.name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase()
@@ -178,27 +190,26 @@ onUnmounted(() => cancelAnimationFrame(animId))
   width: 88px; height: 88px;
   margin-bottom: 1rem;
 }
-.avatar img,
+.avatar img {
+  width: 100%; height: 100%;
+  border-radius: 22px;
+  object-fit: contain;
+  display: block;
+  background: rgba(255,255,255,0.04);
+}
 .initials {
   width: 100%; height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
-  display: block;
-  background: linear-gradient(135deg, #6b3cff, #4c1c9b);
+  border-radius: 22px;
+  background: linear-gradient(135deg, #6b3cff, #ec4899);
   display: flex; align-items: center; justify-content: center;
   font-size: 1.8rem; font-weight: 800;
   color: #fff;
 }
-.initials {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
 .avatar-ring {
   position: absolute;
   inset: -4px;
-  border-radius: 50%;
-  background: conic-gradient(from 0deg, #6b3cff, #2a0350, #0ea5e9, #6b3cff);
+  border-radius: 26px;
+  background: conic-gradient(from 0deg, #6b3cff, #0d0814, #0ea5e9, #0d0814);
   z-index: -1;
   animation: spin 6s linear infinite;
 }
